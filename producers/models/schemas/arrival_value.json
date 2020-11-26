@@ -1,0 +1,9 @@
+{
+  "station_id": "",
+  "train_id": "",
+  "direction": "",
+  "line": "",
+  "train_status": "",
+  "prev_station_id": "",
+  "prev_station": ""
+}
