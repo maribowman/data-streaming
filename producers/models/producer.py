@@ -2,10 +2,10 @@
 import logging
 import time
 
-
-from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
-from confluent_kafka.avro import AvroProducer
+from confluent_kafka.avro import AvroProducer, CachedSchemaRegistryClient
+
+BROKER_URLS = "PLAINTEXT://localhost:9092,PLAINTEXT://localhost:9093,PLAINTEXT://localhost:9094"
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +17,12 @@ class Producer:
     existing_topics = set([])
 
     def __init__(
-        self,
-        topic_name,
-        key_schema,
-        value_schema=None,
-        num_partitions=1,
-        num_replicas=1,
+            self,
+            topic_name,
+            key_schema,
+            value_schema=None,
+            num_partitions=1,
+            num_replicas=1,
     ):
         """Initializes a Producer object with basic settings"""
         self.topic_name = topic_name
@@ -54,16 +54,23 @@ class Producer:
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
-        #
-        #
-        # TODO: Write code that creates the topic for this producer if it does not already exist on
-        # the Kafka Broker.
-        #
-        #
-        logger.info("topic creation kafka integration incomplete - skipping")
-
-    def time_millis(self):
-        return int(round(time.time() * 1000))
+        # TODO: Write code that creates the topic for this producer if it does not already exist on the Kafka Broker.
+        client = AdminClient({"bootstrap.servers": BROKER_URLS})
+        futures = client.create_topics([NewTopic(topic=self.topic_name,
+                                                 num_partitions=self.num_partitions,
+                                                 replication_factor=self.num_replicas,
+                                                 config={
+                                                     "cleanup.policy": "compact",
+                                                     "compression.type": "lz4"
+                                                 })])
+        for _, future in futures.items():
+            try:
+                future.result()
+                print(f"topic '{self.topic_name}' created!")
+            except Exception as e:
+                logger.warning(f"creation of '{self.topic_name}' failed with:\n{e}")
+                logger.info("topic creation kafka integration incomplete - skipping")
+                pass
 
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
