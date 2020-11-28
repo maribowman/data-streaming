@@ -6,6 +6,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer, CachedSchemaRegistryClient
 
 BROKER_URLS = "PLAINTEXT://localhost:9092,PLAINTEXT://localhost:9093,PLAINTEXT://localhost:9094"
+SCHEMA_REGISTRY = "http://localhost:8081"
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ class Producer:
         self.broker_properties = {
             # TODO *3
             "client.id": "test_client",
+            "acks": "all",
             "enable.idempotence": "true",
             "compression.type": "lz4"
         }
@@ -51,7 +53,7 @@ class Producer:
         # TODO: Configure the AvroProducer
         self.producer = AvroProducer(
             {"bootstrap.servers": BROKER_URLS},
-            schema_registry=CachedSchemaRegistryClient("http://localhost:8081")
+            schema_registry=CachedSchemaRegistryClient(SCHEMA_REGISTRY)
         )
 
     def create_topic(self):
@@ -76,12 +78,17 @@ class Producer:
 
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
-        #
-        #
         # TODO: Write cleanup code for the Producer here
-        #
-        #
-        logger.info("producer close incomplete - skipping")
+        client = AdminClient({"bootstrap.servers": BROKER_URLS})
+        futures = client.delete_topics([Producer.existing_topics])
+        for _, future in futures.items():
+            try:
+                future.result()
+                print(f"topic '{self.topic_name}' successfully deleted!")
+            except Exception as e:
+                logger.warning(f"deletion of '{self.topic_name}' failed with:\n{e}")
+                logger.info("producer close incomplete - skipping")
+                pass
 
     def time_millis(self):
         """Use this function to get the key for Kafka Events"""
