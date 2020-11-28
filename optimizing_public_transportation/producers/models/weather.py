@@ -28,7 +28,7 @@ class Weather(Producer):
 
     def __init__(self, month):
         super().__init__(
-            "kafka.weather.data",
+            "kafka.restproxy.weather.data",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
             num_partitions=1,
@@ -86,5 +86,5 @@ class Weather(Producer):
             resp.raise_for_status()
         except Exception as e:
             logger.warning(f"failed to send weather data to kafka\n{e}")
-
+            return
         logger.debug(f"sent weather data to kafka, temp: {self.temp}, status: {self.status.name}")
