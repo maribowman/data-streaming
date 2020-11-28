@@ -38,7 +38,7 @@ def configure_connector():
                 "table.whitelist": "stations",
                 "mode": "incrementing",
                 "incrementing.column.name": "stop_id",
-                "topic.prefix": "postgres.cta.",
+                "topic.prefix": "postgres_cta_",
                 "poll.interval.ms": "1800000"  # 30*60*1000 -> every 30 mins
             }
         }),
