@@ -1,27 +1,27 @@
 """Defines core consumer functionality"""
 import logging
 
-import confluent_kafka
-from confluent_kafka import Consumer
-from confluent_kafka.avro import AvroConsumer
-from confluent_kafka.avro.serializer import SerializerError
 from tornado import gen
 
-
 logger = logging.getLogger(__name__)
+
+BROKER_URLS = "PLAINTEXT://localhost:9092,PLAINTEXT://localhost:9093,PLAINTEXT://localhost:9094"
+BROKER_URLS_DOCKER = "PLAINTEXT://kafka0:9092,PLAINTEXT://kafka1:9093,PLAINTEXT://kafka2:9094"
+SCHEMA_REGISTRY = "http://localhost:8081"
+SCHEMA_REGISTRY_DOCKER = "http://schema-registry:8081"
 
 
 class KafkaConsumer:
     """Defines the base kafka consumer class"""
 
     def __init__(
-        self,
-        topic_name_pattern,
-        message_handler,
-        is_avro=True,
-        offset_earliest=False,
-        sleep_secs=1.0,
-        consume_timeout=0.1,
+            self,
+            topic_name_pattern,
+            message_handler,
+            is_avro=True,
+            offset_earliest=False,
+            sleep_secs=1.0,
+            consume_timeout=0.1,
     ):
         """Creates a consumer object for asynchronous use"""
         self.topic_name_pattern = topic_name_pattern
@@ -37,17 +37,17 @@ class KafkaConsumer:
         #
         #
         self.broker_properties = {
-                #
-                # TODO
-                #
+            #
+            # TODO
+            #
         }
 
         # TODO: Create the Consumer, using the appropriate type.
         if is_avro is True:
-            self.broker_properties["schema.registry.url"] = "http://localhost:8081"
-            #self.consumer = AvroConsumer(...)
+            self.broker_properties["schema.registry.url"] = SCHEMA_REGISTRY
+            # self.consumer = AvroConsumer(...)
         else:
-            #self.consumer = Consumer(...)
+            # self.consumer = Consumer(...)
             pass
 
         #
@@ -93,7 +93,6 @@ class KafkaConsumer:
         #
         logger.info("_consume is incomplete - skipping")
         return 0
-
 
     def close(self):
         """Cleans up any open kafka consumers"""
