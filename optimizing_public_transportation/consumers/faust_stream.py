@@ -1,6 +1,5 @@
 """Defines trends calculations for stations"""
 import logging
-from abc import ABC
 from dataclasses import dataclass
 
 import faust
@@ -10,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Faust will ingest records from Kafka in this format
 @dataclass
-class Station(faust.Record, ABC):
+class Station(faust.Record):
     stop_id: int
     direction_id: str
     stop_name: str
@@ -25,7 +24,7 @@ class Station(faust.Record, ABC):
 
 # Faust will produce records to Kafka in this format
 @dataclass
-class TransformedStation(faust.Record, ABC):
+class TransformedStation(faust.Record):
     station_id: int
     station_name: str
     order: int
