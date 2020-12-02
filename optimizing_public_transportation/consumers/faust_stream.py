@@ -1,6 +1,6 @@
 """Defines trends calculations for stations"""
 import logging
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 import faust
 
@@ -33,9 +33,9 @@ class TransformedStation(faust.Record):
 
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
 source_topic = app.topic("postgres_cta_stations", value_type=Station)
-sink_topic = app.topic("faust.cta.stations.transformed", partitions=1)
+sink_topic = app.topic("faust.transformed.cta.stations", partitions=1)
 table = app.Table(
-    "transformed_stations_table",
+    "faust.transformed.cta.stations.table",
     default=TransformedStation,
     partitions=1,
     changelog_topic=sink_topic,
@@ -52,11 +52,11 @@ async def transform_stations(stations):
             line = "blue"
         elif station.green:
             line = "green"
-
-        table[station.station_id] = TransformedStation(station_id=station.station_id,
-                                                       station_name=station.station_name,
-                                                       order=station.order,
-                                                       line=line)
+        logger.info(f"station in faust with color:{line}")
+        table[station.station_id] = asdict(TransformedStation(station_id=station.station_id,
+                                                              station_name=station.station_name,
+                                                              order=station.order,
+                                                              line=line))
 
 
 if __name__ == "__main__":

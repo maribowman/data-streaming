@@ -1,20 +1,14 @@
 """Creates a turnstile data producer"""
 import logging
-from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from confluent_kafka import avro
+
 from models.producer import Producer
 from models.turnstile_hardware import TurnstileHardware
 
+
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class TurnstileEvent:
-    station_id: int
-    station_name: str
-    line: str
 
 
 class Turnstile(Producer):
@@ -48,11 +42,9 @@ class Turnstile(Producer):
             self.producer.produce(
                 topic=self.topic_name,
                 key={"timestamp": self.time_millis()},
-                value={asdict(TurnstileEvent(station_id=self.station.station_id,
-                                             station_name=self.station.name,
-                                             line=self.station.color.name)
-                              )
-
+                value={"station_id": self.station.station_id,
+                       "station_name": self.station.name,
+                       "line": self.station.color.name
                        },
                 value_schema=Turnstile.value_schema
             )

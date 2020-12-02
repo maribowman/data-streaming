@@ -1,12 +1,15 @@
 """Methods pertaining to weather data"""
+from enum import IntEnum
 import json
 import logging
-import random
-from enum import IntEnum
 from pathlib import Path
+import random
+import urllib.parse
 
 import requests
+
 from models.producer import Producer
+
 
 logger = logging.getLogger(__name__)
 
@@ -70,13 +73,8 @@ class Weather(Producer):
                                      "value_schema": json.dumps(Weather.value_schema),
                                      "records": [
                                          {
-                                             "key": {
-                                                 "timestamp": self.time_millis()
-                                             },
-                                             "value": {
-                                                 "temperature": self.temp,
-                                                 "status": self.status.name
-                                             }
+                                             "key": {"timestamp": self.time_millis()},
+                                             "value": {"temperature": self.temp,"status": self.status.name}
                                          }
                                      ]
                                  }
@@ -87,4 +85,4 @@ class Weather(Producer):
         except Exception as e:
             logger.warning(f"failed to send weather data to kafka\n{e}")
             return
-        logger.debug(f"sent weather data to kafka, temp: {self.temp}, status: {self.status.name}")
+        logger.info(f"sent weather data with status {resp.status_code} to kafka, temp: {self.temp}, status: {self.status.name}")

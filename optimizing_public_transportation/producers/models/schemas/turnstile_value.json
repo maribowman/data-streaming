@@ -9,11 +9,11 @@
     },
     {
       "name": "station_name",
-      "type": "sting"
+      "type": "string"
     },
     {
       "name": "line",
-      "type": "sting"
+      "type": "string"
     }
   ]
 }

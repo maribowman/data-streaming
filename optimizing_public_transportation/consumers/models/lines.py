@@ -19,9 +19,10 @@ class Lines:
 
     def process_message(self, message):
         """Processes a station message"""
-        if "org.chicago.cta.station" in message.topic():
+        if "kafka.cta.station.arrivals" in message.topic():
             value = message.value()
             if message.topic() == "org.chicago.cta.stations.table.v1":
+                logger.info("faust table")
                 value = json.loads(value)
             if value["line"] == "green":
                 self.green_line.process_message(message)
@@ -36,4 +37,4 @@ class Lines:
             self.red_line.process_message(message)
             self.blue_line.process_message(message)
         else:
-            logger.info("ignoring non-lines message %s", message.topic())
+            logger.debug("ignoring non-lines message %s", message.topic())

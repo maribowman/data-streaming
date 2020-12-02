@@ -4,11 +4,12 @@ import logging
 
 import requests
 
+
 logger = logging.getLogger(__name__)
+
 
 KAFKA_CONNECT_URL = "http://localhost:8083/connectors"
 CONNECTOR_NAME = "stations"
-
 
 def configure_connector():
     """Starts and configures the Kafka Connect connector"""
@@ -19,7 +20,6 @@ def configure_connector():
         logging.debug("connector already created skipping recreation")
         return
 
-    logger.info("connector code not completed skipping connector creation")
     resp = requests.post(
         KAFKA_CONNECT_URL,
         headers={"Content-Type": "application/json"},
@@ -49,7 +49,7 @@ def configure_connector():
     except Exception as e:
         logger.warning(f"failed to create postgres connector\n{e}")
         return
-    logging.debug("connector created successfully")
+    logging.info("connector created successfully")
 
 
 if __name__ == "__main__":

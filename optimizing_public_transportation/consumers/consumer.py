@@ -1,13 +1,17 @@
 """Defines core consumer functionality"""
 import logging
 
-from confluent_kafka import OFFSET_BEGINNING, Consumer
+import confluent_kafka
+from confluent_kafka import Consumer, OFFSET_BEGINNING
 from confluent_kafka.avro import AvroConsumer
+from confluent_kafka.avro.serializer import SerializerError
 from tornado import gen
+
 
 logger = logging.getLogger(__name__)
 
-BROKER_URLS = "PLAINTEXT://localhost:9092,PLAINTEXT://localhost:9093,PLAINTEXT://localhost:9094"
+
+BROKER_URL = "PLAINTEXT://localhost:9092"
 SCHEMA_REGISTRY_URL = "http://localhost:8081"
 
 
@@ -30,12 +34,11 @@ class KafkaConsumer:
         self.consume_timeout = consume_timeout
         self.offset_earliest = offset_earliest
         self.broker_properties = {
-            "bootstrap.servers": BROKER_URLS,
+            "bootstrap.servers": BROKER_URL,
             "group.id": topic_name_pattern,
             "default.topic.config": {
                 "auto.offset.reset": "earliest"
-            },
-            "compression": "lz4"
+            }
         }
 
         if is_avro is True:
@@ -45,8 +48,8 @@ class KafkaConsumer:
             self.consumer = Consumer(self.broker_properties)
             pass
 
-        self.consumer.subscribe([self.topic_name_pattern],
-                                on_assign=self.on_assign)
+        self.consumer.subscribe([self.topic_name_pattern], on_assign=self.on_assign)
+        logger.info(f"consumer subscribed to topic with pattern: {self.topic_name_pattern}")
 
     def on_assign(self, consumer, partitions):
         """Callback for when topic assignment takes place"""
@@ -73,7 +76,6 @@ class KafkaConsumer:
             return 0
 
         if message is None:
-            logger.warning("message is none")
             return 0
         elif message.error() is not None:
             logger.warning(f"message has error:\n{message.error()}")

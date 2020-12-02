@@ -2,13 +2,15 @@
 import logging
 import time
 
+
+from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer
 
-BROKER_URLS = "PLAINTEXT://localhost:9092,PLAINTEXT://localhost:9093,PLAINTEXT://localhost:9094"
-SCHEMA_REGISTRY_URL = "http://localhost:8081"
-
 logger = logging.getLogger(__name__)
+
+BROKER_URL = "PLAINTEXT://localhost:9092"
+SCHEMA_REGISTRY_URL = "http://localhost:8081"
 
 
 class Producer:
@@ -32,9 +34,8 @@ class Producer:
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
         self.broker_properties = {
-            "bootstrap.servers": BROKER_URLS,
-            "schema.registry.url": SCHEMA_REGISTRY_URL,
-            "compression": "lz4"
+            "bootstrap.servers": BROKER_URL,
+            "schema.registry.url": SCHEMA_REGISTRY_URL
         }
 
         # If the topic does not already exist, try to create it
@@ -54,9 +55,7 @@ class Producer:
         futures = client.create_topics([NewTopic(topic=self.topic_name,
                                                  num_partitions=self.num_partitions,
                                                  replication_factor=self.num_replicas,
-                                                 config={
-                                                     "compression.type": "lz4"
-                                                 })])
+                                                 )])
         for _, future in futures.items():
             try:
                 future.result()
