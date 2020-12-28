@@ -4,8 +4,11 @@ compose:
 compose-stop:
 	@docker-compose -f ./docker-compose.yaml stop
 
-start:
+start-producer:
 	@python3 kafka_server.py
 
-consumer:
+consumer-server:
+	@python3 consumer_server.py
+
+consumer-console:
 	@kafkacat -C -b localhost:9092 -t sf.police.department.calls
