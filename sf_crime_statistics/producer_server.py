@@ -33,6 +33,7 @@ class ProducerServer(KafkaProducer):
         return False
 
     def create_topic(self):
+        print(f"kafka topic '{self.topic}' does not exist. starting topic creation!")
         client = AdminClient({"bootstrap.servers": self.config['bootstrap_servers']})
         futures = client.create_topics([NewTopic(topic=self.topic,
                                                  num_partitions=1,
@@ -49,9 +50,11 @@ class ProducerServer(KafkaProducer):
 
     def generate_data(self):
         if not path.exists(f'{self.input_file}.json'):
+            print("json file does not exist. extracting zip file.")
             with ZipFile(f'{self.input_file}.zip', 'r') as zip_file:
                 zip_file.extractall('./')
         with open(f'{self.input_file}.json') as file:
+            print("starting to send data to kafka.")
             for line in json.load(file):
                 message = dict_to_binary(line)
                 self.send(topic=self.topic, value=message)
