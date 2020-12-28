@@ -1,7 +1,7 @@
-kafka-start:
+compose:
 	@docker-compose -f ./docker-compose.yaml start
 
-kafka-stop:
+compose-stop:
 	@docker-compose -f ./docker-compose.yaml stop
 
 start:
