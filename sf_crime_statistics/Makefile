@@ -12,3 +12,6 @@ consumer-server:
 
 consumer-console:
 	@kafkacat -C -b localhost:9092 -t sf.police.department.calls
+
+spark:
+	@spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.7 --master local[*] data_stream.py > spark.log
